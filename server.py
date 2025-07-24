@@ -1,5 +1,9 @@
-# server.py
-from flask import Flask, request, jsonify
+'''
+This module provides a server using the emotion_detection function. It defines a URL for 
+submission of text, and returns English text identifying the dominant emotion. It deals 
+gracefully with the error of missing text.
+'''
+from flask import Flask, request
 from EmotionDetection.EmotionDetection.emotion_detection import emotion_detector
 
 app = Flask(__name__)
@@ -22,19 +26,18 @@ def detect_emotion():
             if prob > biggest_prob:
                 dominant_emotion = emotion
                 biggest_prob = detections[emotion]
-    # Deal with error case
+    # Deal with error case first
     if dominant_emotion is None:
         return " Invalid text! Please try again!"
-    else:
-        # Generate output string
-        output = "For the given statement, the system response is "
-        for emotion in detections:
-            prob = detections[emotion]
-            output = output + "'"+emotion+"': "+ str(prob) +", "
-        output = output[:-2] + ". The dominant emotion is " + str(dominant_emotion) + "."
+    # Generate output string if valid dominant emotion
+    output = "For the given statement, the system response is "
+    for emotion in detections:
+        prob = detections[emotion]
+        output = output + "'"+emotion+"': "+ str(prob) +", "
+    output = output[:-2] + ". The dominant emotion is " + str(dominant_emotion) + "."
 
-        # return string output
-        return output
+    # return string output
+    return output
 
 @app.route("/")
 def index():
@@ -43,7 +46,7 @@ def index():
     """
     return "Welcome to the Emotion Detector API! Use /emotionDetector?textToAnalyze=<your_text>"
 
-port = 5000
+PORT = 5000
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=port, debug=True)
-
+    app.run(host="0.0.0.0", port=PORT, debug=True)
+    

@@ -9,10 +9,12 @@ def emotion_detector(text_to_analyse):
     response = requests.post(url, json=input_json, headers=header)
     # Convert to json format for processing
     formatted_response = json.loads(response.text)
-    # Extract emotion probability evaluations
-    emotions = formatted_response['emotionPredictions'][0]['emotion']
     # Deal with status code 400
     if response.status_code == 400:
         emotions = {"anger": None, "disgust": None, "fear": None, 
         "joy": None, "sadness": None}
+    else:
+        # Extract emotion probability evaluations
+        emotions = formatted_response['emotionPredictions'][0]['emotion']
+    
     return emotions
