@@ -12,15 +12,29 @@ def detect_emotion():
     """
     text_to_analyze = request.args.get('textToAnalyze')
 
-    if not text_to_analyze:
-        return jsonify({"error": "No text provided. Please provide 'textToAnalyze' as a query parameter."}), 400
-
     detections = emotion_detector(text_to_analyze)
+    # Find dominant emotion
+    biggest_prob = -1
+    dominant_emotion = None
+    for emotion in detections:
+        prob = detections[emotion]
+        if prob is not None:
+            if prob > biggest_prob:
+                dominant_emotion = emotion
+                biggest_prob = detections[emotion]
+    # Deal with error case
+    if dominant_emotion is None:
+        return " Invalid text! Please try again!"
+    else:
+        # Generate output string
+        output = "For the given statement, the system response is "
+        for emotion in detections:
+            prob = detections[emotion]
+            output = output + "'"+emotion+"': "+ str(prob) +", "
+        output = output[:-2] + ". The dominant emotion is " + str(dominant_emotion) + "."
 
-    if detections is None:
-        return jsonify({"error": "Invalid input provided for emotion detection."}), 400
-
-    return jsonify(detections)
+        # return string output
+        return output
 
 @app.route("/")
 def index():
@@ -32,3 +46,4 @@ def index():
 port = 5000
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=port, debug=True)
+
